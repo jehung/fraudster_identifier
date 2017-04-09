@@ -76,24 +76,26 @@ features_train, features_test, targets_train, targets_test = \
 ### you'll need to use Pipelines. For more info:
 ### http://scikit-learn.org/stable/modules/pipeline.html
 
-param_grid = {"base_estimator__criterion" : ["gini", "entropy"],
-              "base_estimator__splitter" :   ["best", "random"],
-              "n_estimators": [20, 50, 75, 100]
+pca = PCA(n_components=2)
+param_grid = {"ada__base_estimator__criterion" : ["gini", "entropy"],
+              "ada__base_estimator__splitter" :   ["best", "random"],
+              "ada__n_estimators": [50, 75, 100],
+              "pca__n_components": [1, 2, 3, 4]
              }
 
 
 DTC = DecisionTreeClassifier(max_features = "auto", class_weight="balanced",max_depth=5)
-
 ABC = AdaBoostClassifier(base_estimator=DTC)
 
-
+pipe = Pipeline(steps=[('pca', pca), ('ada', ABC)])
 
 # run grid search
-clf = GridSearchCV(ABC, param_grid=param_grid, scoring='roc_auc')
-clf.fit(features_train, targets_train)
+grid_search = GridSearchCV(pipe, param_grid=param_grid, scoring='roc_auc')
+grid_search.fit(features_train, targets_train)
+clf = grid_search.best_estimator_
 print 'accuracy', clf.score(features_test, targets_test)
 
-pred = clf.predict(features_test)
+pred = grid_search.predict(features_test)
 actual = targets_test
 
 precision = metrics.precision_score(actual, pred)
@@ -125,4 +127,3 @@ for score in scores:
 '''
 
 dump_classifier_and_data(clf, my_dataset, features_list)
-
