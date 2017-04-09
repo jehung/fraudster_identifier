@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import sys
 from pprint import pprint
 from time import time
@@ -80,16 +78,14 @@ features_train, features_test, targets_train, targets_test = \
 
 param_grid = {"base_estimator__criterion" : ["gini", "entropy"],
               "base_estimator__splitter" :   ["best", "random"],
-              "n_estimators": [1, 2, 3, 4]
+              "n_estimators": [20, 50, 75, 100]
              }
 
-PCA = PCA(n_components=2)
-#DTC = DecisionTreeClassifier(random_state = 11, max_features = "auto", class_weight = "balanced",max_depth = None)
-svc = SVC()
+
+DTC = DecisionTreeClassifier(max_features = "auto", class_weight="balanced",max_depth=5)
+
 ABC = AdaBoostClassifier(base_estimator=DTC)
 
-clf = Pipeline(steps=[('pca', PCA),('dt', DTC), ('ada', ABC)])
-print clf.get_params()
 
 
 # run grid search
@@ -107,38 +103,26 @@ print 'recall', recall
 
 '''
 scores = ['precision', 'recall']
-
 for score in scores:
     print("# Tuning hyper-parameters for %s" % score)
     print()
-
     grid_search = GridSearchCV(ABC, param_grid=param_grid, scoring='roc_auc')
-
-
-
-
     grid_search.fit(features_train, targets_train)
-
-
     features_test, targets_pred = features_test, grid_search.predict(features_test)
     print targets_pred
-
-
 # Provided to give you a starting point. Try a variety of classifiers.
-
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
 ### function. Because of the small size of the dataset, the script uses
 ### stratified shuffle split cross validation. For more info:
 ### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
-
 # Example starting point. Try investigating other evaluation techniques!
 ### Task 6: Dump your classifier, dataset, and features_list so anyone can
 ### check your results. You do not need to change anything below, but make sure
 ### that the version of poi_id.py that you submit can be run on its own and
 ### generates the necessary .pkl files for validating your results.
-
 '''
 
 dump_classifier_and_data(clf, my_dataset, features_list)
+
