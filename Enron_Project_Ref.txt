@@ -1,0 +1,17 @@
+Enron Project References
+
+A list of reference material in addition to the lecture material:
+
+1. http://sebastianraschka.com/Articles/2014_ensemble_classifier.html
+
+2. http://scikit-learn.org/stable/modules/classes.html#module-sklearn.preprocessing
+
+3. http://scikit-learn.org/stable/modules/preprocessing.html#normalization
+
+4. http://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html
+
+5. http://scikit-learn.org/stable/modules/tree.html
+
+6. http://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.GaussianNB.html
+
+7. http://scikit-learn.org/stable/modules/generated/sklearn.pipeline.Pipeline.html
