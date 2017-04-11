@@ -18,7 +18,7 @@ from sklearn import model_selection
 
 
 
-### Task 1: Select what features you'll use.
+### Select what features you'll use.
 
 ### First, we load the dictionary containing the dataset
 with open("final_project_dataset.pkl", "r") as data_file:
@@ -27,6 +27,7 @@ with open("final_project_dataset.pkl", "r") as data_file:
 ### Task 1: Remove outliers
 my_dataset = data_dict
 
+
 def remove_key(dictionary, keys):
     dictionary.pop(keys, 0)
 
@@ -34,7 +35,17 @@ outliers_list = ['TOTAL', 'THE TRAVEL AGENCY IN THE PARK', 'LOCKHART EUGENE E']
 for outlier in outliers_list:
     remove_key(my_dataset, outlier)
 
-### Task 2: Make meaningful features and select features
+### Make meaningful features and select features
+### First compute finance-type and email-type ratios
+### Then sum the ratios
+'''
+features_list = ['poi', 'salary', 'bonus', 'deferral_payments', 'total_payments',
+                  'exercised_stock_options', 'restricted_stock', 'restricted_stock_deferred',
+                  'total_stock_value', 'loan_advances', 'director_fees', 'deferred_income',
+                  'long_term_incentive', 'deferred_income', 'expenses',
+                  'from_poi_to_this_person', 'to_messages']
+'''
+
 finance_features = ['salary', 'deferral_payments', 'total_payments', 'loan_advances', 'bonus',
                     'restricted_stock_deferred', 'deferred_income', 'total_stock_value', 'expenses',
                     'exercised_stock_options', 'other', 'long_term_incentive', 'restricted_stock', 'director_fees']
@@ -80,21 +91,6 @@ for person in my_dataset:
     remove_key(my_dataset[person], 'from_messages')
     remove_key(my_dataset[person], 'email_address')
 
-
-
-all_keys = []
-
-for person, k in my_dataset.items():
-    for e in k.keys():
-        if e not in all_keys:
-            all_keys.append(e)
-
-features_list = ['poi']
-
-#for a in all_keys:
-#    if a not in features_list:
-#        features_list.append(a)
-#print features_list
 features_list = ['poi', 'finAll', 'emailAll', 'from_poi_ratio']
 
 ### Extract features and labels from dataset for local testing
@@ -114,14 +110,7 @@ robustScale = Normalizer()
 #print data
 
 
-### Task 4: Try a varity of classifiers
-### Please name your classifier clf for easy export below.
-### Note that if you want to do PCA or other multi-stage operations,
-### you'll need to use Pipelines. For more info:
-### http://scikit-learn.org/stable/modules/pipeline.html
-
-
-sss = StratifiedShuffleSplit(n_splits=10, test_size=0.2)
+sss = StratifiedShuffleSplit(n_splits=3, test_size=0.2)
 
 pca = PCA()
 
@@ -134,23 +123,23 @@ param_grid = {#"ada__base_estimator__criterion" : ["gini", "entropy"],
               #'svc__kernel': ('linear', 'rbf', 'sigmoid'),
               #'svc__C': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
               #'svc__gamma': [0.001, 0.01, 0.1, 1, 10, 100, 1000],
-              #'kbest__k': [1, 2, 3, 4],
-              #'kpercentile_percentile': [90],
+              #'kbest__k': [1, 2],
+              #'kpercentile__percentile': [90],
             }
 
 kbest = SelectKBest()
 kpercentile = SelectPercentile(percentile=90)
 svc = SVC()
-DTC = DecisionTreeClassifier(max_features="auto", class_weight="balanced", max_depth=4)
+DTC = DecisionTreeClassifier(max_features="auto", class_weight="balanced", max_depth=2)
 nb = GaussianNB()
 ABC = AdaBoostClassifier(base_estimator=DTC)
 
 #pipe = Pipeline(steps=[('scale', robustScale), ('pca', pca), ('ada', ABC)])
 pipe = Pipeline(steps=[('scale', robustScale), ('pca', pca), ('dt', DTC)])
 #pipe = Pipeline(steps=[('scale', robustScale), ('pca', pca), ('nb', nb)])
-#pipe = Pipeline(steps=[('scale', robustScale), ('svc', svc)])
+#pipe = Pipeline(steps=[('scale', robustScale), ('pca', pca), ('svc', svc)])
 #pipe = Pipeline(steps=[('scale', robustScale), ('pca', pca), ('kbest', kbest),('dt', DTC) ])
-#pipe = Pipeline(steps=[('kpercentile', kpercentile), ('dt', DTC)])
+#pipe = Pipeline(steps=[('scale', robustScale), ('kpercentile', kpercentile), ('dt', DTC)])
 #pipe = Pipeline(steps=[('scale', robustScale), ('kbest', kbest), ('ada', ABC)])
 
 # run grid search
@@ -160,21 +149,6 @@ clf = grid_search.best_estimator_
 
 #print clf.score(features_test, labels_test)
 
-
-#print labels_test
-#print clf.predict(features_test)
-# Provided to give you a starting point. Try a variety of classifiers.
-### Task 5: Tune your classifier to achieve better than .3 precision and recall
-### using our testing script. Check the tester.py script in the final project
-### folder for details on the evaluation method, especially the test_classifier
-### function. Because of the small size of the dataset, the script uses
-### stratified shuffle split cross validation. For more info:
-### http://scikit-learn.org/stable/modules/generated/sklearn.cross_validation.StratifiedShuffleSplit.html
-# Example starting point. Try investigating other evaluation techniques!
-### Task 6: Dump your classifier, dataset, and features_list so anyone can
-### check your results. You do not need to change anything below, but make sure
-### that the version of poi_id.py that you submit can be run on its own and
-### generates the necessary .pkl files for validating your results.
 
 
 dump_classifier_and_data(clf, my_dataset, features_list)
